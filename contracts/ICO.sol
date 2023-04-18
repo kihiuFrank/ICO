@@ -81,6 +81,15 @@ contract ICO is Block {
         return true;
     }
 
+    // burning tokens reduces supply hence the price of the token may rise.
+    function burn() public returns (bool) {
+        icoState = getState();
+        require(icoState == State.afterEnd);
+        //burn
+        balances[founder] = 0;
+        return true;
+    }
+
     function getState() public view returns (State) {
         if (icoState == State.halted) {
             return State.halted;
