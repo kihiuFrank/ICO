@@ -90,6 +90,26 @@ contract ICO is Block {
         return true;
     }
 
+    // trasfer token to some other account
+    function transfer(
+        address to,
+        uint tokens
+    ) public override returns (bool success) {
+        require(
+            block.timestamp > tokenTradeTime,
+            "you can't transfer before the trade time begins"
+        );
+
+        super.transfer(to, tokens); // super keyword ensures we call transfer from your parent contract (Block)
+        // if not used, this func will go into an infinite loop
+
+        // or
+
+        // Block.transfer(to,tokens);
+
+        return true;
+    }
+
     function getState() public view returns (State) {
         if (icoState == State.halted) {
             return State.halted;

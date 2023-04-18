@@ -112,7 +112,7 @@ contract Block is ERC20Interface {
     function transfer(
         address _to,
         uint256 tokens
-    ) public override returns (bool) {
+    ) public virtual override returns (bool) {
         // first check if they have enough tokens in their account
         require(
             balances[msg.sender] >= tokens,
