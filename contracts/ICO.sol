@@ -74,6 +74,11 @@ contract ICO is Block {
 
         // update balances
         balances[msg.sender] += tokens;
+        balances[founder] -= tokens;
+        deposit.transfer(msg.value); // deposit the invested value to our deposit address
+
+        emit Invest(msg.sender, msg.value, tokens);
+        return true;
     }
 
     function getState() public view returns (State) {
