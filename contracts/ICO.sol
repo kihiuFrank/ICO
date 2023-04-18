@@ -110,6 +110,20 @@ contract ICO is Block {
         return true;
     }
 
+    function transferFrom(
+        address from,
+        address to,
+        uint tokens
+    ) public override returns (bool success) {
+        require(
+            block.timestamp > tokenTradeTime,
+            "you can't transfer before the trade time begins"
+        );
+
+        super.transferFrom(from, to, tokens);
+        return true;
+    }
+
     function getState() public view returns (State) {
         if (icoState == State.halted) {
             return State.halted;
@@ -120,5 +134,10 @@ contract ICO is Block {
         } else {
             return State.afterEnd;
         }
+    }
+
+    // prevents eth getting lost when an ivestor sends eth directly to our contract without calling the invest() func
+    receive() external payable {
+        invest();
     }
 }

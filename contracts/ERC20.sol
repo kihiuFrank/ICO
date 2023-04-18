@@ -154,7 +154,7 @@ contract Block is ERC20Interface {
         address sender,
         address recipient,
         uint256 tokens
-    ) external override returns (bool) {
+    ) public virtual override returns (bool) {
         require(allowed[sender][recipient] >= tokens);
         require(
             balances[sender] >= tokens,
