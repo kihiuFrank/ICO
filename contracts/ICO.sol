@@ -37,7 +37,7 @@ contract ICO is Block {
     }
 
     modifier onlyManager() {
-        require(msg.sender == manager);
+        require(msg.sender == manager, "not owner");
         _;
     }
 
