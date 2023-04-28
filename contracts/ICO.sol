@@ -3,6 +3,12 @@ pragma solidity ^0.8.0;
 
 import "./ERC20.sol";
 
+error Ico__CannotInvestWhileNotRunning();
+error Ico__AmountOutofRange();
+error Ico__AmountRaisedCannotExceedCap();
+error Ico__StateShouldBeEnded();
+error Ico__CannotTransferBeforeTradeTime();
+
 contract ICO is Block {
     address public manager;
     address payable public deposit;
@@ -56,19 +62,31 @@ contract ICO is Block {
 
     function invest() public payable returns (bool) {
         icoState = getState();
-        require(
+        /* require(
             icoState == State.running,
             "cannot invest when ICO isn't running"
-        );
+        ); */
 
-        require(
+        if (icoState != State.running) {
+            revert Ico__CannotInvestWhileNotRunning();
+        }
+
+        /* require(
             msg.value >= minInvest && msg.value <= maxInvest,
             "your amount must be within allowed range"
-        );
+        ); */
+
+        if (msg.value < minInvest && msg.value > maxInvest) {
+            revert Ico__AmountOutofRange();
+        }
 
         raisedAmount = msg.value;
 
-        require(raisedAmount <= cap, "amount raised cannot exceed the set cap");
+        /* require(raisedAmount <= cap, "amount raised cannot exceed the set cap"); */
+
+        if (raisedAmount > cap) {
+            revert Ico__AmountRaisedCannotExceedCap();
+        }
 
         uint tokens = msg.value / tokenPrice; // if we invest 10 ether we get (10/0.1) tokens
 
@@ -84,7 +102,10 @@ contract ICO is Block {
     // burning tokens reduces supply hence the price of the token may rise.
     function burn() public returns (bool) {
         icoState = getState();
-        require(icoState == State.afterEnd);
+        // require(icoState == State.afterEnd);
+        if (icoState != State.afterEnd) {
+            revert Ico__StateShouldBeEnded();
+        }
         //burn
         balances[founder] = 0;
         return true;
@@ -95,10 +116,14 @@ contract ICO is Block {
         address to,
         uint tokens
     ) public override returns (bool success) {
-        require(
+        /* require(
             block.timestamp > tokenTradeTime,
             "you can't transfer before the trade time begins"
-        );
+        ); */
+
+        if (block.timestamp <= tokenTradeTime) {
+            revert Ico__CannotTransferBeforeTradeTime();
+        }
 
         super.transfer(to, tokens); // super keyword ensures we call transfer from your parent contract (Block)
         // if not used, this func will go into an infinite loop
@@ -115,10 +140,14 @@ contract ICO is Block {
         address to,
         uint tokens
     ) public override returns (bool success) {
-        require(
+        /* require(
             block.timestamp > tokenTradeTime,
             "you can't transfer before the trade time begins"
-        );
+        ); */
+
+        if (block.timestamp <= tokenTradeTime) {
+            revert Ico__CannotTransferBeforeTradeTime();
+        }
 
         super.transferFrom(from, to, tokens);
         return true;
