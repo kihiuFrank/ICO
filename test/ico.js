@@ -1,6 +1,7 @@
 const { network, ethers, deployments } = require("hardhat")
 const { assert, expect } = require("chai")
 const { developmentChains } = require("../helper-hardhat-config")
+const { describe } = require("mocha")
 
 !developmentChains.includes(network.name)
     ? describe.skip
@@ -36,5 +37,22 @@ const { developmentChains } = require("../helper-hardhat-config")
               await ico.resume()
               const runningState = await ico.getState()
               assert.equal(runningState, 2) // state [3] = halted on our ICO.sol
+          })
+
+          describe("changeDepositAddr func", () => {
+              it("only allows manager to call", async () => {
+                  const icoInvestor1connected = ico.connect(inverstor1)
+                  await expect(icoInvestor1connected.changeDepositAddr()).to.be.rejectedWith(
+                      "not owner"
+                  )
+              })
+              it("changes deposit address", async () => {
+                  await ico.changeDepositAddr("0x7F000649C3f42C2D80dc3bd99F3F5e7CB737092C")
+
+                  assert.equal(
+                      await ico.getDepositAddr(),
+                      "0x7F000649C3f42C2D80dc3bd99F3F5e7CB737092C"
+                  )
+              })
           })
       })

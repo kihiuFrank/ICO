@@ -1,8 +1,8 @@
 {
-  "name": "erc20-token",
+  "name": "ico",
   "version": "1.0.0",
   "main": "index.js",
-  "repository": "https://github.com/kihiuFrank/ERC20-Token.git",
+  "repository": "https://github.com/kihiuFrank/ICO.git",
   "author": "kihiuFrank <franklinekihiu@gmail.com>",
   "license": "MIT",
   "devDependencies": {
@@ -19,7 +19,7 @@
     "base64-sol": "^1.1.0",
     "chai": "^4.3.4",
     "ethers": "^5.5.3",
-    "hardhat": "^2.12.0",
+    "hardhat": "^2.14.0",
     "hardhat-deploy": "^0.9.29",
     "hardhat-gas-reporter": "^1.0.7",
     "path": "^0.12.7",

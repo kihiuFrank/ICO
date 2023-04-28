@@ -136,6 +136,10 @@ contract ICO is Block {
         }
     }
 
+    function getDepositAddr() public view returns (address) {
+        return deposit;
+    }
+
     // prevents eth getting lost when an ivestor sends eth directly to our contract without calling the invest() func
     receive() external payable {
         invest();
