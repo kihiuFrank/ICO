@@ -56,4 +56,52 @@ const { developmentChains } = require("../helper-hardhat-config")
                   )
               })
           })
+
+          describe("invest", () => {
+              it("checks if ico is running before investing", async () => {
+                  // stop the ico
+                  await ico.halt()
+
+                  await expect(ico.invest()).to.be.revertedWithCustomError(
+                      ico,
+                      "Ico__MustBeRunning"
+                  )
+              })
+
+              it("checks if invested amount is below minimum", async () => {
+                  // cannot be below minimum invest amount of 0.1ETH
+                  const minValue = ethers.utils.parseEther("0.09")
+                  await expect(ico.invest({ value: minValue })).to.be.revertedWithCustomError(
+                      ico,
+                      "Ico__AmountBelowMimimumAllowed"
+                  )
+              })
+
+              it("checks if ivested amount is above maximum", async () => {
+                  //cannot be above maximum invest amount of 10ETH
+                  const maxValue = ethers.utils.parseEther("10.009")
+                  await expect(ico.invest({ value: maxValue })).to.be.revertedWithCustomError(
+                      ico,
+                      "Ico__AmountAboveMaximumAllowed"
+                  )
+              })
+
+              it("checks that raised amount doesn't exceed set cap", async () => {
+                  const cap = await ico.getCap()
+
+                  // investing to reach cap (31*10 = 310ETH)
+                  const investAmount = ethers.utils.parseEther("10")
+                  for (let i = 0; i < 30; i++) {
+                      await ico.invest({ value: investAmount })
+                  }
+
+                  // get raised amount
+                  const raisedAmount = await ico.getRaisedAmount()
+
+                  await expect().to.be.revertedWithCustomError(
+                      ico,
+                      "Ico__AmountRaisedCannotExceedCap"
+                  )
+              })
+          })
       })

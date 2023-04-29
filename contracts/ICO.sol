@@ -3,8 +3,9 @@ pragma solidity ^0.8.0;
 
 import "./ERC20.sol";
 
-error Ico__CannotInvestWhileNotRunning();
-error Ico__AmountOutofRange();
+error Ico__MustBeRunning();
+error Ico__AmountBelowMimimumAllowed();
+error Ico__AmountAboveMaximumAllowed();
 error Ico__AmountRaisedCannotExceedCap();
 error Ico__StateShouldBeEnded();
 error Ico__CannotTransferBeforeTradeTime();
@@ -68,7 +69,7 @@ contract ICO is Block {
         ); */
 
         if (icoState != State.running) {
-            revert Ico__CannotInvestWhileNotRunning();
+            revert Ico__MustBeRunning();
         }
 
         /* require(
@@ -76,8 +77,12 @@ contract ICO is Block {
             "your amount must be within allowed range"
         ); */
 
-        if (msg.value < minInvest && msg.value > maxInvest) {
-            revert Ico__AmountOutofRange();
+        if (msg.value < minInvest) {
+            revert Ico__AmountBelowMimimumAllowed();
+        }
+
+        if (msg.value > maxInvest) {
+            revert Ico__AmountAboveMaximumAllowed();
         }
 
         raisedAmount = msg.value;
@@ -167,6 +172,14 @@ contract ICO is Block {
 
     function getDepositAddr() public view returns (address) {
         return deposit;
+    }
+
+    function getRaisedAmount() public view returns (uint) {
+        return raisedAmount;
+    }
+
+    function getCap() public view returns (uint) {
+        return cap;
     }
 
     // prevents eth getting lost when an ivestor sends eth directly to our contract without calling the invest() func
