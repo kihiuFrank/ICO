@@ -120,5 +120,19 @@ const { developmentChains } = require("../helper-hardhat-config")
                   // checks manager balance
                   assert.equal((await ico.getManagerBalance()).toString(), "99900")
               })
+
+              it("invests succesfully", async () => {
+                  //invest
+                  const icoInvestor1connected = ico.connect(inverstor1)
+                  const investAmount = ethers.utils.parseEther("10")
+
+                  //await icoInvestor1connected.invest({ value: investAmount })
+                  // tokens; 10/0.1 = 100 tokens
+
+                  // check for emitted event
+                  expect(await icoInvestor1connected.invest({ value: investAmount })).to.emit(
+                      "Invest"
+                  )
+              })
           })
       })
