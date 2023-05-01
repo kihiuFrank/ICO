@@ -182,6 +182,20 @@ contract ICO is Block {
         return cap;
     }
 
+    function getFounderBalance() public view returns (uint) {
+        //return balances[msg.sender];
+        // same as,
+        return balances[founder];
+    }
+
+    function getManagerBalance() public view returns (uint) {
+        return balances[manager];
+    }
+
+    function getAddressBalance(address x) public view returns (uint) {
+        return balances[x];
+    }
+
     // prevents eth getting lost when an ivestor sends eth directly to our contract without calling the invest() func
     receive() external payable {
         invest();

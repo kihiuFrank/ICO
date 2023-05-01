@@ -87,21 +87,38 @@ const { developmentChains } = require("../helper-hardhat-config")
               })
 
               it("checks that raised amount doesn't exceed set cap", async () => {
-                  const cap = await ico.getCap()
+                  const cap = ethers.utils.parseEther("300")
 
-                  // investing to reach cap (31*10 = 310ETH)
+                  //const cap = await ico.getCap()
+
+                  /* // investing to reach cap (31*10 = 310ETH)
                   const investAmount = ethers.utils.parseEther("10")
                   for (let i = 0; i < 30; i++) {
                       await ico.invest({ value: investAmount })
-                  }
+                  } */
 
                   // get raised amount
-                  const raisedAmount = await ico.getRaisedAmount()
+                  const raisedAmount = ethers.utils.parseEther("301")
 
-                  await expect().to.be.revertedWithCustomError(
+                  await expect(ico.invest({ value: raisedAmount })).to.be.revertedWithCustomError(
                       ico,
                       "Ico__AmountRaisedCannotExceedCap"
                   )
+              })
+
+              it("updates balances accordingly", async () => {
+                  //invest
+                  const icoInvestor1connected = ico.connect(inverstor1)
+                  const investAmount = ethers.utils.parseEther("10")
+
+                  await icoInvestor1connected.invest({ value: investAmount })
+                  // tokens; 10/0.1 = 100 tokens
+
+                  // checks investor balance
+                  assert.equal((await ico.getAddressBalance(inverstor1.address)).toString(), "100")
+
+                  // checks manager balance
+                  assert.equal((await ico.getManagerBalance()).toString(), "99900")
               })
           })
       })
