@@ -56,10 +56,6 @@ contract ICO is Block {
         icoState = State.running;
     }
 
-    function end() public onlyManager {
-        icoState = State.afterEnd;
-    }
-
     // as a security feature we need option to change deposit address incase old one got hacked (preventing further losses)
     function changeDepositAddr(address payable newDeposit) public onlyManager {
         deposit = newDeposit;

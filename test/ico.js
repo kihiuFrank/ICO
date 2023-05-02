@@ -41,17 +41,6 @@ const { developmentChains } = require("../helper-hardhat-config")
               assert.equal(runningState, 2) // state [2] = running on our ICO.sol
           })
 
-          it("ends the ico & only allows manager to call", async () => {
-              // only allows manager to call
-              const icoInvestor1connected = ico.connect(inverstor1)
-              await expect(icoInvestor1connected.end()).to.be.rejectedWith("not owner")
-
-              // ends the ico
-              await ico.end()
-              const endedState = await ico.getState()
-              assert.equal(endedState, 1) // state [1] = afterEnd on our ICO.sol
-          })
-
           describe("changeDepositAddr func", () => {
               it("only allows manager to call", async () => {
                   const icoInvestor1connected = ico.connect(inverstor1)
@@ -173,10 +162,11 @@ const { developmentChains } = require("../helper-hardhat-config")
               })
 
               it("should burn tokens", async () => {
-                  await ico.end()
+                  const icoState = await ico.getState()
+                  assert.equal(icoState, 1) // state [1] = afterEnd on our ICO.sol
                   await ico.burn()
-                  const managerBalance = await ico.getManagerBalance()
-                  assert.equal(managerBalance.toString(), "0")
+                  const founderBal = await ico.getFounderBalance()
+                  assert.equal(founderBal.toString(), "0")
               })
           })
       })
