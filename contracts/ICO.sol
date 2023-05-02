@@ -24,7 +24,7 @@ contract ICO is Block {
     //Prevent people from selling ether when the ICO is running (avoiding losses)
 
     uint public maxInvest = 10 ether; // max amount an invetor can invest
-    uint public minInvest = 0.1 ether; // min amount an investor can invest.abi
+    uint public minInvest = 0.1 ether; // min amount an investor can invest
 
     enum State {
         beforeStart,
@@ -54,6 +54,10 @@ contract ICO is Block {
 
     function resume() public onlyManager {
         icoState = State.running;
+    }
+
+    function end() public onlyManager {
+        icoState = State.afterEnd;
     }
 
     // as a security feature we need option to change deposit address incase old one got hacked (preventing further losses)
@@ -105,7 +109,7 @@ contract ICO is Block {
     }
 
     // burning tokens reduces supply hence the price of the token may rise.
-    function burn() public returns (bool) {
+    function burn() public onlyManager returns (bool) {
         icoState = getState();
         // require(icoState == State.afterEnd);
         if (icoState != State.afterEnd) {
@@ -194,6 +198,10 @@ contract ICO is Block {
 
     function getAddressBalance(address x) public view returns (uint) {
         return balances[x];
+    }
+
+    function getIcoEnd() public view returns (uint) {
+        return icoEnd;
     }
 
     // prevents eth getting lost when an ivestor sends eth directly to our contract without calling the invest() func

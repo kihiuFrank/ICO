@@ -19,23 +19,37 @@ const { developmentChains } = require("../helper-hardhat-config")
               assert(ico.address)
           })
 
-          it("changes state when function is called & only allows manager to call", async () => {
+          it("changes state to halted & only allows manager to call", async () => {
               // only allows manager to call
               const icoInvestor1connected = ico.connect(inverstor1)
-
               await expect(icoInvestor1connected.halt()).to.be.rejectedWith("not owner")
-
-              await expect(icoInvestor1connected.resume()).to.be.rejectedWith("not owner")
 
               // changes state to halted
               await ico.halt()
               const haltState = await ico.getState()
               assert.equal(haltState, 3) // state [3] = halted on our ICO.sol
+          })
+
+          it("changes state to running & only allows manager to call", async () => {
+              // only allows manager to call
+              const icoInvestor1connected = ico.connect(inverstor1)
+              await expect(icoInvestor1connected.resume()).to.be.rejectedWith("not owner")
 
               // changes state to running
               await ico.resume()
               const runningState = await ico.getState()
-              assert.equal(runningState, 2) // state [3] = halted on our ICO.sol
+              assert.equal(runningState, 2) // state [2] = running on our ICO.sol
+          })
+
+          it("ends the ico & only allows manager to call", async () => {
+              // only allows manager to call
+              const icoInvestor1connected = ico.connect(inverstor1)
+              await expect(icoInvestor1connected.end()).to.be.rejectedWith("not owner")
+
+              // ends the ico
+              await ico.end()
+              const endedState = await ico.getState()
+              assert.equal(endedState, 1) // state [1] = afterEnd on our ICO.sol
           })
 
           describe("changeDepositAddr func", () => {
@@ -144,6 +158,25 @@ const { developmentChains } = require("../helper-hardhat-config")
                   expect(await icoInvestor1connected.invest({ value: investAmount })).to.emit(
                       "Invest"
                   )
+              })
+          })
+
+          describe("burning tokens", () => {
+              it("checks that the ico is ended before burning", async () => {
+                  const icoState = await ico.getState()
+                  assert.equal(icoState, 1) // state [1] = afterEnd on our ICO.sol
+              })
+
+              it("only allows manager to call", async () => {
+                  const icoInvestor1connected = ico.connect(inverstor1)
+                  await expect(icoInvestor1connected.burn()).to.be.rejectedWith("not owner")
+              })
+
+              it("should burn tokens", async () => {
+                  await ico.end()
+                  await ico.burn()
+                  const managerBalance = await ico.getManagerBalance()
+                  assert.equal(managerBalance.toString(), "0")
               })
           })
       })
