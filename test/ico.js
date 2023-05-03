@@ -170,7 +170,7 @@ const { developmentChains } = require("../helper-hardhat-config")
                   // increasing blocktime to end contract
                   await network.provider.send("evm_increaseTime", [3600])
                   const icoState = await ico.getState()
-                  assert.equal(icoState, 1) // state [2] = running on our ICO.sol
+                  assert.equal(icoState, 1) // state [1] = afterEnd on our ICO.sol
 
                   // burning tokens
                   await ico.burn()
