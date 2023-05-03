@@ -165,6 +165,8 @@ contract ICO is Block {
             return State.beforeStart;
         } else if (block.timestamp > icoStart && block.timestamp < icoEnd) {
             return State.running;
+        } else if (block.timestamp == icoStart) {
+            return State.running;
         } else {
             return State.afterEnd;
         }
@@ -198,6 +200,10 @@ contract ICO is Block {
 
     function getIcoEnd() public view returns (uint) {
         return icoEnd;
+    }
+
+    function getTradeTime() public view returns (uint) {
+        return tokenTradeTime;
     }
 
     // prevents eth getting lost when an ivestor sends eth directly to our contract without calling the invest() func

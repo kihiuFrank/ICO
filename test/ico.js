@@ -152,8 +152,13 @@ const { developmentChains } = require("../helper-hardhat-config")
 
           describe("burning tokens", () => {
               it("checks that the ico is ended before burning", async () => {
-                  const icoState = await ico.getState()
-                  assert.equal(icoState, 1) // state [1] = afterEnd on our ICO.sol
+                  // const icoState = await ico.getState()
+                  // assert.equal(icoState, 1) // state [1] = afterEnd on our ICO.sol
+
+                  await expect(ico.burn()).to.be.revertedWithCustomError(
+                      ico,
+                      "Ico__StateShouldBeEnded"
+                  )
               })
 
               it("only allows manager to call", async () => {
@@ -163,10 +168,29 @@ const { developmentChains } = require("../helper-hardhat-config")
 
               it("should burn tokens", async () => {
                   const icoState = await ico.getState()
-                  assert.equal(icoState, 1) // state [1] = afterEnd on our ICO.sol
+                  assert.equal(icoState, 2) // state [2] = running on our ICO.sol
+
+                  // increasing blocktime to end contract
+                  await network.provider.send("evm_increaseTime", [3600])
+
+                  // burning tokens
                   await ico.burn()
                   const founderBal = await ico.getFounderBalance()
                   assert.equal(founderBal.toString(), "0")
+              })
+
+              it("test that the contract state is always running after deplopment, unless halted or ended", async () => {
+                  const icoState = await ico.getState()
+                  assert.equal(icoState, 2)
+              })
+          })
+
+          describe("transfer tokens", () => {
+              it("checks you cannot transfer tokens before trade time begins", async () => {
+                  const tokenTradeTime = await ico.getTradeTime()
+                  expect(
+                      await ico.transfer("0x7F000649C3f42C2D80dc3bd99F3F5e7CB737092C", 100)
+                  ).to.be.revertedWithCustomError(ico, "Ico__CannotTransferBeforeTradeTime")
               })
           })
       })
