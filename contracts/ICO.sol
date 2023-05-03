@@ -163,9 +163,7 @@ contract ICO is Block {
             return State.halted;
         } else if (block.timestamp < icoStart) {
             return State.beforeStart;
-        } else if (block.timestamp > icoStart && block.timestamp < icoEnd) {
-            return State.running;
-        } else if (block.timestamp == icoStart) {
+        } else if (block.timestamp >= icoStart && block.timestamp < icoEnd) {
             return State.running;
         } else {
             return State.afterEnd;

@@ -167,11 +167,10 @@ const { developmentChains } = require("../helper-hardhat-config")
               })
 
               it("should burn tokens", async () => {
-                  const icoState = await ico.getState()
-                  assert.equal(icoState, 2) // state [2] = running on our ICO.sol
-
                   // increasing blocktime to end contract
                   await network.provider.send("evm_increaseTime", [3600])
+                  const icoState = await ico.getState()
+                  assert.equal(icoState, 1) // state [2] = running on our ICO.sol
 
                   // burning tokens
                   await ico.burn()
