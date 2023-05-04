@@ -169,6 +169,9 @@ const { developmentChains } = require("../helper-hardhat-config")
               it("should burn tokens", async () => {
                   // increasing blocktime to end contract
                   await network.provider.send("evm_increaseTime", [3600])
+
+                  // we need to add a non-view transaction after incresing time to update the block.timestamp
+                  await deployer.sendTransaction({ to: ethers.constants.AddressZero })
                   const icoState = await ico.getState()
                   assert.equal(icoState, 1) // state [1] = afterEnd on our ICO.sol
 
