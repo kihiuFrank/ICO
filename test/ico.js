@@ -170,8 +170,9 @@ const { developmentChains } = require("../helper-hardhat-config")
                   // increasing blocktime to end contract
                   await network.provider.send("evm_increaseTime", [3600])
 
-                  // we need to add a non-view transaction after incresing time to update the block.timestamp
+                  // we need to add a non-view transaction after incresing time to update the block.timestamp (mine a block)
                   await deployer.sendTransaction({ to: ethers.constants.AddressZero })
+
                   const icoState = await ico.getState()
                   assert.equal(icoState, 1) // state [1] = afterEnd on our ICO.sol
 
@@ -189,10 +190,29 @@ const { developmentChains } = require("../helper-hardhat-config")
 
           describe("transfer tokens", () => {
               it("checks you cannot transfer tokens before trade time begins", async () => {
-                  const tokenTradeTime = await ico.getTradeTime()
-                  expect(
-                      await ico.transfer("0x7F000649C3f42C2D80dc3bd99F3F5e7CB737092C", 100)
+                  // at this point the ico state is running. So block timestamp can't be tokenTradeTime
+                  await expect(
+                      ico.transfer("0x7F000649C3f42C2D80dc3bd99F3F5e7CB737092C", 100)
                   ).to.be.revertedWithCustomError(ico, "Ico__CannotTransferBeforeTradeTime")
+              })
+
+              it("checks trasfer is succesful", async () => {
+                  // increase time to match tokenTradeTime
+                  await network.provider.send("evm_increaseTime", [3600 + 3600])
+
+                  // mine a block by using a write fuction to change block time
+                  await deployer.sendTransaction({ to: ethers.constants.AddressZero })
+
+                  // at this point the ico has ended and an hour has lapsed.
+                  const icoState = await ico.getState()
+                  assert.equal(icoState, 1) // state [1] = afterEnd on our ICO.sol
+
+                  // check transfer succesful
+                  await ico.transfer("0x7F000649C3f42C2D80dc3bd99F3F5e7CB737092C", 100)
+                  const balOfAddr = await ico.getAddressBalance(
+                      "0x7F000649C3f42C2D80dc3bd99F3F5e7CB737092C"
+                  )
+                  assert.equal(balOfAddr.toString(), "100")
               })
           })
       })
