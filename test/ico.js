@@ -188,7 +188,7 @@ const { developmentChains } = require("../helper-hardhat-config")
               })
           })
 
-          describe("transfer tokens", () => {
+          describe("transfer", () => {
               it("checks you cannot transfer tokens before trade time begins", async () => {
                   // at this point the ico state is running. So block timestamp can't be tokenTradeTime
                   await expect(
@@ -213,6 +213,45 @@ const { developmentChains } = require("../helper-hardhat-config")
                       "0x7F000649C3f42C2D80dc3bd99F3F5e7CB737092C"
                   )
                   assert.equal(balOfAddr.toString(), "100")
+              })
+          })
+
+          describe("transferFrom", () => {
+              it("checks you cannot transfer tokens before trade time begins", async () => {
+                  // at this point the ico state is running. So block timestamp can't be tokenTradeTime
+                  await expect(
+                      ico.transferFrom(
+                          deployer.address,
+                          "0x7F000649C3f42C2D80dc3bd99F3F5e7CB737092C",
+                          100
+                      )
+                  ).to.be.revertedWithCustomError(ico, "Ico__CannotTransferBeforeTradeTime")
+              })
+
+              it("checks trasfer is succesful", async () => {
+                  // increase time to match tokenTradeTime
+                  await network.provider.send("evm_increaseTime", [3600 + 3600])
+
+                  // mine a block by using a write fuction to change block time
+                  await deployer.sendTransaction({ to: ethers.constants.AddressZero })
+
+                  // at this point the ico has ended and an hour has lapsed.
+                  const icoState = await ico.getState()
+                  assert.equal(icoState, 1) // state [1] = afterEnd on our ICO.sol
+
+                  // check transfer succesful
+                  await ico.transferFrom(
+                      deployer.address,
+                      "0x7F000649C3f42C2D80dc3bd99F3F5e7CB737092C",
+                      100
+                  )
+                  const balOfAddr = await ico.getAddressBalance(
+                      "0x7F000649C3f42C2D80dc3bd99F3F5e7CB737092C"
+                  )
+                  const balOfDeployer = await ico.getFounderBalance()
+
+                  assert.equal(balOfAddr.toString(), "100")
+                  assert.equal(balOfDeployer.toString(), "99900")
               })
           })
       })
