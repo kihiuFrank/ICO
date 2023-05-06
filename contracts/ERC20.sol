@@ -129,7 +129,7 @@ contract Block is ERC20Interface {
     function allowance(
         address owner,
         address spender
-    ) external view override returns (uint256) {
+    ) public view override returns (uint256) {
         return allowed[owner][spender];
     }
 
@@ -155,7 +155,9 @@ contract Block is ERC20Interface {
         address recipient,
         uint256 tokens
     ) public virtual override returns (bool) {
+        // THE ERROR IS DUE TO THIS FUCNTION FAILING.
         require(allowed[sender][recipient] >= tokens);
+
         require(
             balances[sender] >= tokens,
             "you cannot transfer more than you have"

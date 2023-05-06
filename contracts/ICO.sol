@@ -154,6 +154,8 @@ contract ICO is Block {
             revert Ico__CannotTransferBeforeTradeTime();
         }
 
+        allowance(msg.sender, to);
+
         super.transferFrom(from, to, tokens);
         return true;
     }

@@ -248,7 +248,8 @@ const { developmentChains } = require("../helper-hardhat-config")
                   const balOfAddr = await ico.getAddressBalance(
                       "0x7F000649C3f42C2D80dc3bd99F3F5e7CB737092C"
                   )
-                  const balOfDeployer = await ico.getFounderBalance()
+                  const balOfDeployer = await ico.getAddressBalance(deployer.address)
+                  console.log(balOfDeployer.toString())
 
                   assert.equal(balOfAddr.toString(), "100")
                   assert.equal(balOfDeployer.toString(), "99900")
