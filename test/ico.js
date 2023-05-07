@@ -239,6 +239,9 @@ const { developmentChains } = require("../helper-hardhat-config")
                   const icoState = await ico.getState()
                   assert.equal(icoState, 1) // state [1] = afterEnd on our ICO.sol
 
+                  // Approve the recipient to spend tokens on behalf of the sender (deployer)
+                  await ico.approve("0x7F000649C3f42C2D80dc3bd99F3F5e7CB737092C", 100)
+
                   // check transfer succesful
                   await ico.transferFrom(
                       deployer.address,
